@@ -27,6 +27,7 @@ import {
   Poppins_900Black_Italic,
 } from '@expo-google-fonts/poppins';
 import { ActivityIndicator, Text, View } from 'react-native';
+import Auth from './navigator/AuthStack';
 
 export default function App() {
   let [fontsLoaded] = useFonts({
@@ -50,25 +51,28 @@ export default function App() {
     Poppins_900Black_Italic,
   });
 
-  const [isFirstLunch, setIsFirstLunch] = React.useState(false)
+  const [isFirstLunch, setIsFirstLunch]   = React.useState(false)
   const [isLoggedin, setIsLoggedin]       = React.useState(false)
-  const [user, setUser]       = React.useState(null)
-  const [isLoading, setIsLoading]       = React.useState(true)
+  const [user, setUser]                   = React.useState(null)
+  const [isLoading, setIsLoading]         = React.useState(true)
+  
 
   React.useEffect(() => { 
     AsyncStorage.getItem('isAppLunched')
     .then(value => {
-      console.log(value)
       if(value == "YES") {
         setIsFirstLunch(false)
         setIsLoading(false)
       }
       else {
-        console.log("Else Block")
         AsyncStorage.setItem('isAppLunched', "YES");
+        setIsLoading(false)
       }
     })
-    .catch(e => AsyncStorage.setItem('isAppLunched', "YES"))
+      .catch(e => { 
+        AsyncStorage.setItem('isAppLunched', "YES");
+        setIsLoading(false)
+      })
   }, [])
 
   const AuthContext = React.createContext("")
@@ -84,7 +88,7 @@ export default function App() {
     return (
       <AuthContext.Provider>
         <NavigationContainer>
-          { isFirstLunch ? <OnBoarding /> : <Text>AuthScreen</Text> }
+          {isFirstLunch ? <OnBoarding /> : !isLoggedin ? <Auth /> : <Text>Dashboard</Text>}
         </NavigationContainer>
       </AuthContext.Provider>
     );
